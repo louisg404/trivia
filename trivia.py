@@ -5,8 +5,10 @@ class Game:
         self.players = []
         self.places = [0] * 100
         self.purses = [0] * 6
+        self.joker = [0] * 6
         self.in_penalty_box = [0] * 100
         self.techno = False
+        self.goldNeeded = 0
 
         self.pop_questions = []
         self.science_questions = []
@@ -31,6 +33,7 @@ class Game:
         self.players.append(player_name)
         self.places[self.how_many_players] = 0
         self.purses[self.how_many_players] = 0
+        self.joker[self.how_many_players] = 0
         self.in_penalty_box[self.how_many_players] = False
 
         print(player_name + " was added")
@@ -145,7 +148,7 @@ class Game:
         return True
 
     def _did_player_win(self):
-        return not (self.purses[self.current_player] == 6)
+        return not (self.purses[self.current_player] == int(self.goldNeeded))
 
 from random import randrange
 
@@ -171,6 +174,13 @@ if __name__ == '__main__':
     game.add('Steeve')
 
     if game.is_playable():
+        gold = False
+        while (not gold):
+            goldn = raw_input("How much gold you want to win ? (6 minimum)")
+            if(int(goldn) >= 6):
+                gold = True
+                game.goldNeeded = goldn
+        
         techno = raw_input("Do you want to play with Techno category instead of Rock category ? (yes/no)")
         if techno == 'yes':
             print("You will play with Techno category")
