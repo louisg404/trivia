@@ -5,10 +5,11 @@ class Game:
         self.players = []
         self.places = [0] * 100
         self.purses = [0] * 6
-        self.joker = [0] * 6
         self.in_penalty_box = [0] * 100
         self.techno = False
         self.goldNeeded = 0
+        self.joker = []
+        self.isJokerInUse = False
 
         self.pop_questions = []
         self.science_questions = []
@@ -31,9 +32,9 @@ class Game:
 
     def add(self, player_name):
         self.players.append(player_name)
+        self.joker.append(True)
         self.places[self.how_many_players] = 0
         self.purses[self.how_many_players] = 0
-        self.joker[self.how_many_players] = 0
         self.in_penalty_box[self.how_many_players] = False
 
         print(player_name + " was added")
@@ -47,7 +48,7 @@ class Game:
     def roll(self, roll):
         print("%s is the current player" % self.players[self.current_player])
 
-        stopGame = raw_input("Do you want to stop ? (yes/no)")
+        stopGame = input("Do you want to stop ? (yes/no)")
         if stopGame == 'yes':
             self.players.pop(self.current_player)
             play()
@@ -61,12 +62,8 @@ class Game:
                     self.places[self.current_player] = self.places[self.current_player] + roll
                     if self.places[self.current_player] > 11:
                         self.places[self.current_player] = self.places[self.current_player] - 12
-
-                    print(self.players[self.current_player] + \
-                                '\'s new location is ' + \
-                                str(self.places[self.current_player]))
-                    print("The category is %s" % self._current_category)
-                    self._ask_question()
+                    self._question_process()
+                   
                 else:
                     print("%s is not getting out of the penalty box" % self.players[self.current_player])
                     self.is_getting_out_of_penalty_box = False
@@ -74,12 +71,23 @@ class Game:
                 self.places[self.current_player] = self.places[self.current_player] + roll
                 if self.places[self.current_player] > 11:
                     self.places[self.current_player] = self.places[self.current_player] - 12
+                self._question_process()
+        
 
-                print(self.players[self.current_player] + \
-                            '\'s new location is ' + \
-                            str(self.places[self.current_player]))
-                print("The category is %s" % self._current_category)
-                self._ask_question()
+    def _question_process(self):
+        print(self.players[self.current_player] + \
+            '\'s new location is ' + \
+            str(self.places[self.current_player]))
+        print("The category is %s" % self._current_category)
+        self._ask_question()
+        if self.joker[self.current_player] :
+            useJoker = input("Do you want to use your joker ? (yes/no)")
+            if(useJoker == 'yes') : 
+                self.joker[self.current_player] = False
+                self.isJokerInUse = True
+                print("you have used your joker")
+
+
 
     def _ask_question(self):
         if self._current_category == 'Pop': print(self.pop_questions.pop(0))
@@ -138,6 +146,13 @@ class Game:
 
             return winner
 
+    def joker_used(self):
+        self.isJokerInUse = False
+        self.current_player += 1
+        if self.current_player == len(self.players): self.current_player = 0
+        return True         
+
+
     def wrong_answer(self):
         print('Question was incorrectly answered')
         print(self.players[self.current_player] + " was sent to the penalty box")
@@ -160,7 +175,9 @@ if __name__ == '__main__':
             if game.how_many_players > 1:
                 game.roll(randrange(5) + 1)
                 if game.how_many_players > 1:
-                    if randrange(9) == 7:
+                    if game.isJokerInUse : 
+                        not_a_winner = game.joker_used()   
+                    elif randrange(9) == 7:
                         not_a_winner = game.wrong_answer()
                     else:
                         not_a_winner = game.was_correctly_answered()
@@ -176,12 +193,12 @@ if __name__ == '__main__':
     if game.is_playable():
         gold = False
         while (not gold):
-            goldn = raw_input("How much gold you want to win ? (6 minimum)")
+            goldn = input("How much gold you want to win ? (6 minimum)")
             if(int(goldn) >= 6):
                 gold = True
                 game.goldNeeded = goldn
         
-        techno = raw_input("Do you want to play with Techno category instead of Rock category ? (yes/no)")
+        techno = input("Do you want to play with Techno category instead of Rock category ? (yes/no)")
         if techno == 'yes':
             print("You will play with Techno category")
             game.techno = True
