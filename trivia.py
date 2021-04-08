@@ -8,6 +8,7 @@ class Game:
         self.in_penalty_box = [0] * 100
         self.techno = False
         self.goldNeeded = 0
+        self.next_question = ""
         self.joker = []
         self.isJokerInUse = False
 
@@ -48,7 +49,7 @@ class Game:
     def roll(self, roll):
         print("%s is the current player" % self.players[self.current_player])
 
-        stopGame = input("Do you want to stop ? (yes/no)")
+        stopGame = raw_input("Do you want to stop ? (yes/no)")
         if stopGame == 'yes':
             self.players.pop(self.current_player)
             play()
@@ -80,8 +81,9 @@ class Game:
             str(self.places[self.current_player]))
         print("The category is %s" % self._current_category)
         self._ask_question()
+        self.next_question = ""
         if self.joker[self.current_player] :
-            useJoker = input("Do you want to use your joker ? (yes/no)")
+            useJoker = raw_input("Do you want to use your joker ? (yes/no)")
             if(useJoker == 'yes') : 
                 self.joker[self.current_player] = False
                 self.isJokerInUse = True
@@ -98,6 +100,9 @@ class Game:
 
     @property
     def _current_category(self):
+        if self.next_question != "": 
+            a = self.next_question
+            return a
         if self.places[self.current_player] == 0: return 'Pop'
         if self.places[self.current_player] == 4: return 'Pop'
         if self.places[self.current_player] == 8: return 'Pop'
@@ -155,6 +160,12 @@ class Game:
 
     def wrong_answer(self):
         print('Question was incorrectly answered')
+        if self.techno:
+            nextquestion = raw_input("What do you want for the next question ? (Pop,Sciences,Sports,Techno) ")
+        else:
+            nextquestion = raw_input("What do you want for the next question ? (Pop,Sciences,Sports,Rock) ")
+
+        self.next_question = nextquestion
         print(self.players[self.current_player] + " was sent to the penalty box")
         self.in_penalty_box[self.current_player] = True
 
@@ -193,12 +204,12 @@ if __name__ == '__main__':
     if game.is_playable():
         gold = False
         while (not gold):
-            goldn = input("How much gold you want to win ? (6 minimum)")
+            goldn = raw_input("How much gold you want to win ? (6 minimum)")
             if(int(goldn) >= 6):
                 gold = True
                 game.goldNeeded = goldn
         
-        techno = input("Do you want to play with Techno category instead of Rock category ? (yes/no)")
+        techno = raw_input("Do you want to play with Techno category instead of Rock category ? (yes/no)")
         if techno == 'yes':
             print("You will play with Techno category")
             game.techno = True
